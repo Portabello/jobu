@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JobU</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+    }
+    #response {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f0f0f0;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h2>Chat with JobU</h2>
+  <textarea id="prompt" placeholder="Enter your message here..."></textarea><br>
+  <button onclick="sendPrompt()">Send</button>
+  <div id="response"></div>
+
+  <script>
+    async function sendPrompt() {
+      const prompt = document.getElementById('prompt').value;
+      const responseDiv = document.getElementById('response');
+      responseDiv.textContent = "Loading...";
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: prompt })
+        });
+
+        const data = await res.json();
+        responseDiv.textContent = data.response;
+      } catch (err) {
+        responseDiv.textContent = "Error: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>

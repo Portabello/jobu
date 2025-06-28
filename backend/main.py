@@ -1,17 +1,24 @@
-from flask import Flask, request, jsonify
-from openai_service import get_gpt_response
+from fastapi import FastAPI
+from pydantic import BaseModel
+from openai_services import get_gpt_response
+from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
 
-app = Flask(__name__)
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    user_message = data.get("message", "")
-    if not user_message:
-        return jsonify({"response": "Please send a message."})
 
-    reply = get_gpt_response(user_message)
-    return jsonify({"response": reply})
+# Load environment variables (optional here since openai_services.py already does)
+load_dotenv()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+app = FastAPI()
+
+class ChatRequest(BaseModel):
+    message: str
+    model: str = "gpt-3.5-turbo"  # Optional: allow overriding the model
+
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    response = get_gpt_response(request.message, model=request.model)
+    return {"response": response}
+
+#configure FastAPI to serve static files (index.html)
+app.mount("/", StaticFiles(directory="C:/Users/Jasmit/Documents/GitHub/jobu/frontend" , html=True), name="static")
