@@ -9,33 +9,87 @@
       max-width: 600px;
       margin: 40px auto;
     }
+
+    #chatContainer {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #fff;
+    }
+
+    .message {
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background-color: #DCF8C6;
+      text-align: right;
+    }
+
+    .assistant {
+      background-color: #F1F0F0;
+      text-align: left;
+    }
+
     textarea {
       width: 100%;
-      height: 100px;
+      height: 80px;
+      margin-top: 10px;
     }
+
     button {
       margin-top: 10px;
       padding: 10px 20px;
     }
-    #response {
+
+    input[type="file"] {
       margin-top: 20px;
-      padding: 10px;
-      background: #f0f0f0;
-      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
   <h2>Chat with JobU</h2>
+
+  <!-- Upload Resume -->
+  <h3>Upload your resume</h3>
+  <input type="file" id="resumeFile" accept=".pdf,.txt" />
+  <button onclick="uploadResume()">Upload</button>
+
+  <!-- Chat History -->
+  <div id="chatContainer"></div>
+
+  <!-- Message Input -->
   <textarea id="prompt" placeholder="Enter your message here..."></textarea><br>
   <button onclick="sendPrompt()">Send</button>
-  <div id="response"></div>
 
   <script>
+    const chatContainer = document.getElementById("chatContainer");
+    const chatHistory = [];
+
+    function renderChat() {
+      chatContainer.innerHTML = "";
+      for (const msg of chatHistory) {
+        const msgDiv = document.createElement("div");
+        msgDiv.textContent = msg.text;
+        msgDiv.className = `message ${msg.role}`;
+        chatContainer.appendChild(msgDiv);
+      }
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
     async function sendPrompt() {
-      const prompt = document.getElementById('prompt').value;
-      const responseDiv = document.getElementById('response');
-      responseDiv.textContent = "Loading...";
+      const promptInput = document.getElementById("prompt");
+      const userMessage = promptInput.value.trim();
+      if (!userMessage) return;
+
+      chatHistory.push({ role: "user", text: userMessage });
+      renderChat();
+      promptInput.value = "";
 
       try {
         const res = await fetch("http://127.0.0.1:8000/chat", {
@@ -43,13 +97,38 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ message: prompt })
+          body: JSON.stringify({ message: userMessage })
         });
 
         const data = await res.json();
-        responseDiv.textContent = data.response;
+        chatHistory.push({ role: "assistant", text: data.response });
+        renderChat();
       } catch (err) {
-        responseDiv.textContent = "Error: " + err.message;
+        chatHistory.push({ role: "assistant", text: "Error: " + err.message });
+        renderChat();
+      }
+    }
+
+    async function uploadResume() {
+      const fileInput = document.getElementById("resumeFile");
+      if (!fileInput.files.length) {
+        alert("Please select a file.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/upload_resume", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await res.json();
+        alert(result.message);
+      } catch (err) {
+        alert("Error: " + err.message);
       }
     }
   </script>
