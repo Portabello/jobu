@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <meta charset="UTF-8" />
   <title>JobU</title>
   <style>
@@ -142,32 +143,19 @@
   <script>
     const chatContainer = document.getElementById("chatContainer");
     const chatHistory = [];
-    function formatMessage(text) {
-      // Escape HTML
-      const escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-      // Replace newlines with <br>
-      let formatted = escaped.replace(/\n/g, "<br>");
-
-      // Format bullet points
-      formatted = formatted.replace(/^- (.*?)(<br>|$)/gm, "• $1<br>");
-
-      // Format numbered lists
-      formatted = formatted.replace(/^\d+\. (.*?)(<br>|$)/gm, (match) => {
-        return match.replace(/<br>$/, "") + "<br>";
-      });
-
-      return formatted;
-    }
 
     function renderChat() {
       chatContainer.innerHTML = "";
       for (const msg of chatHistory) {
         const msgDiv = document.createElement("div");
-        msgDiv.innerHTML = formatMessage(msg.text);
+        if (msg.text === "Typing.") {
+          msgDiv.textContent = "Typing.";
+          msgDiv.classList.add("typing");
+        } else {
+          msgDiv.innerHTML = marked.parse(msg.text);
+        }
+
+
         msgDiv.className = `message ${msg.role}`;
 
         if (msg.text === "Typing.") {
