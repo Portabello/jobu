@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from openai_services import get_gpt_response
+from backend.openai_services import get_gpt_response
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 from fastapi.responses import JSONResponse
 import pdfplumber
-from openai_services import get_gpt_response, embed_texts, add_resume_to_store, get_resume_context
+from backend.openai_services import get_gpt_response, embed_texts, add_resume_to_store, get_resume_context
 
 
 
