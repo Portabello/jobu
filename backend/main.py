@@ -7,6 +7,7 @@ from fastapi import UploadFile, File
 from fastapi.responses import JSONResponse
 import pdfplumber
 from backend.openai_services import get_gpt_response, embed_texts, add_resume_to_store, get_resume_context
+import os
 
 
 
@@ -67,4 +68,9 @@ async def upload_resume(file: UploadFile = File(...)):
 
 
 #configure FastAPI to serve static files (index.html)
-app.mount("/", StaticFiles(directory="C:/Users/Jasmit/Documents/GitHub/jobu/frontend" , html=True), name="static")
+#app.mount("/", StaticFiles(directory="C:/Users/Jasmit/Documents/GitHub/jobu/frontend" , html=True), name="static")
+# Get current file directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+frontend_path = os.path.join(BASE_DIR, "../frontend")
+
+app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
