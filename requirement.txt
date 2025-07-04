@@ -5,3 +5,5 @@ openai
 langchain
 chromadb
 PyPDF2
+pdfplumber
+numpy
