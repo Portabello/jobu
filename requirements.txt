@@ -7,3 +7,4 @@ chromadb
 PyPDF2
 pdfplumber
 numpy
+python-multipart
